@@ -9,12 +9,12 @@ Created on Wed Jan 22 15:46:42 2020
 import tkinter as tk
 from tkinter import ttk
 import setGame as sg
-import time  
-from PIL import ImageTk
+import time
 
 ourGame = sg.setGame()
 displayedCardButtons = []
 selectedCards = []
+cardImages = {}
 
 def newGame():
     ourGame.startGame()
@@ -26,27 +26,97 @@ def newGame():
 
 def displayHand():
     for i in range(12):
-        print('in display hand')
-        displayedCardButtons[i].configure(
-            image = ImageTk.PhotoImage(ourGame.hand[i].image),
-            command = lambda: selectCard(i))
+        name = ourGame.hand[i].imagename
+        cardImages[name] = tk.PhotoImage(file=name)        
+        displayedCardButtons[i].config(
+            image = cardImages[name],
+            text='',)
+        bindButton(i)
+        """
+        func = make_bind_function(i)
+        displayedCardButtons[i].bind(
+            "<Button-1>",
+            lambda event: func(event))
+        """
 
-def selectCard(index): 
+""" 
+TODO - delete these once i'm SURE i won't need them
+def butt0(event):
+    selectCard(0)
+def butt1(event):
+    selectCard(1) 
+def butt2(event):
+    selectCard(2)    
+def butt3(event):
+    selectCard(3)    
+def butt4(event):
+    selectCard(4)    
+def butt5(event):
+    selectCard(5)     
+def butt6(event):
+    selectCard(6)   
+def butt7(event):
+    selectCard(7)    
+def butt8(event):
+    selectCard(8)    
+def butt9(event):
+    selectCard(9)    
+def butt10(event):
+    selectCard(10)    
+def butt11(event):
+    selectCard(11)
+"""
+  
+def bindButton(index):
+    switcher = {
+        0: lambda event: selectCard(event,0),
+        1: lambda event: selectCard(event,1),
+        2: lambda event: selectCard(event,2),
+        3: lambda event: selectCard(event,3),       
+        4: lambda event: selectCard(event,4),       
+        5: lambda event: selectCard(event,5),       
+        6: lambda event: selectCard(event,6),
+        7: lambda event: selectCard(event,7),
+        8: lambda event: selectCard(event,8),
+        9: lambda event: selectCard(event,9),
+        10: lambda event: selectCard(event,10),
+        11: lambda event: selectCard(event,11)
+    }
+    displayedCardButtons[index].bind(
+        "<Button-1>",
+        switcher[index]
+        )
+    
+    
+def make_bind_function(index):
+    def bindFunc(event):
+        return selectCard(event,index)
+    return bindFunc
+                 
+
+def selectCard(event,index):
     """
     TODO - make sure card isn't selected already
-
-    """
-    if len(selectedCards) < 3:
-        selectedCards.push(index)
-    elif len(selectedCards) == 3:
-        checkSelection()
+    """ 
+    if index in selectedCards:
+        displayedCardButtons[index].config(bg="white")
+        selectedCards.remove(index)
     else:
-        """ 
-        TODO - should throw an error here
-        """
+        selectedCards.append(index)
+        displayedCardButtons[index].config(bg="purple")
+    if len(selectedCards) < 3:
         return
-
+    elif len(selectedCards) == 3:
+        #time.sleep(0.5)
+        checkSelection()
+        time.sleep(0.3)
+        clearSelection()
+    else:
+        clearSelection()
+        return
+        
 def checkSelection():
+    #time.sleep(0.5)
     a = ourGame.hand[selectedCards[0]]
     b = ourGame.hand[selectedCards[1]]
     c = ourGame.hand[selectedCards[2]]
@@ -57,10 +127,19 @@ def checkSelection():
         setFalse()
     
 def setTrue():
+    #for index in selectedCards:
+       # displayedCardButtons[index].config(bg="white")
     return
 
 def setFalse():
+    #for index in selectedCards:
+    #    displayedCardButtons[index].config(bg="white")
     return
+
+def clearSelection():
+    for index in selectedCards:
+        displayedCardButtons[index].config(bg="white")
+    del selectedCards[:]
 
 def quitandclose():
     root.destroy()
@@ -84,12 +163,10 @@ r = 0
 c = 0
 for i in range(12):
     string = "Card " + str(i+1)
-    b = tk.Button(
+    b = tk.Label(
         hand,
-        text=string,
         image=emptyCard,
-        compound="center",
-        height = 150, width = 233)
+        height = 154, width = 237)
     b.grid(row=r,column=c,padx=3,pady=3)
     displayedCardButtons.append(b)
     c += 1

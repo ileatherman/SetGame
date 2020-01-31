@@ -18,26 +18,20 @@ fills = ['empty','full','striped']
 
 class setCard:  
     def __init__(self,c,s,n,f):
-        imagename = 'cards/'
+        self.imagename = 'cards/'
         if c in colours:
             self.colour = c
-            imagename += c[0]
+            self.imagename += c[0]
         if s in shapes:
             self.shape = s
-            imagename += s[0]
+            self.imagename += s[0]
         if n in numbers:
             self.number = n
-            imagename += n[0]
+            self.imagename += n[0]
         if f in fills:
             self.fill = f
-            imagename += f[0]
-        imagename += '.gif'
-        #print(imagename)
-        self.image = Image.open(imagename)
-        #transform image now bc im too lazy to change all the cards manually
-        # TODO write a script that does all this for me?
-        self.image = self.image.rotate(90)
-        self.image = self.image.resize((233,150))        
+            self.imagename += f[0]
+        self.imagename += '.png'
           
     # for testing    
     def showCard(self):
@@ -66,11 +60,9 @@ class setDeck:
         if self.emptyDeck() == False:
             return self.deck.pop(0)
 
-fullSetDeck = setDeck()
-
 class setGame:
     def __init__(self):
-        #self.deck = setDeck()
+        self.deck = setDeck()
         self.hand = []
         
     def dispHand(self):
