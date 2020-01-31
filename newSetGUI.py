@@ -109,7 +109,6 @@ def selectCard(event,index):
     elif len(selectedCards) == 3:
         #time.sleep(0.5)
         checkSelection()
-        time.sleep(0.3)
         clearSelection()
     else:
         clearSelection()
