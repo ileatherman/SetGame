@@ -73,21 +73,14 @@ class setGame:
         self.deck.shuffleDeck()
         for i in range(0,12):
             self.hand.append(self.deck.drawCard())
-      
-    """
-    issues here with saving the index of the cards for the buttons
+     
+    def replaceSet(self, indices):
+        for index in indices:
+            self.hand[index] = self.deck.drawCard()
     
-    def removeSet(self,a,b,c):
-        self.hand.pop(a)
-        self.hand.pop(b)
-        self.hand.pop(c)
-        
-    def replaceSet(self):
-        while self.deck.emptyDeck() == False:
-            numCards = 12 - len(self.hand)
-            for i in range(0,numCards):
-                self.hand.append(self.deck.drawCard())
-    """
+    def removeSet(self, indices):
+        for index in sorted(indices, reverse=True):
+            del self.hand[index]
            
     def checkColours(self,a,b,c):
         acolour = a.colour
@@ -152,7 +145,10 @@ class setGame:
         #startTime = time()
         self.firstDraw()
         
-        
+    def newHand(self):
+        for card in self.hand:
+            self.deck.append(card)
+        self.firstDraw()
         
         
         

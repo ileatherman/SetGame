@@ -18,54 +18,32 @@ cardImages = {}
 
 def newGame():
     ourGame.startGame()
-    ourGame.firstDraw()
+    while not ourGame.checkBoard():
+        ourGame.newHand()
     displayHand()
     gameButt.configure(text="New Game")
     #start timer?
     return False
 
 def displayHand():
-    for i in range(12):
-        name = ourGame.hand[i].imagename
+    if not ourGame.checkBoard():
+        noticeLabel.config(fg="black",text="No SETs possible, redrawing board.")
+    while not ourGame.checkBoard():
+        ourGame.newHand()
+    i=0
+    for card in ourGame.hand:
+        name = card.imagename
         cardImages[name] = tk.PhotoImage(file=name)        
         displayedCardButtons[i].config(
             image = cardImages[name],
             text='',)
         bindButton(i)
-        """
-        func = make_bind_function(i)
-        displayedCardButtons[i].bind(
-            "<Button-1>",
-            lambda event: func(event))
-        """
-
-""" 
-TODO - delete these once i'm SURE i won't need them
-def butt0(event):
-    selectCard(0)
-def butt1(event):
-    selectCard(1) 
-def butt2(event):
-    selectCard(2)    
-def butt3(event):
-    selectCard(3)    
-def butt4(event):
-    selectCard(4)    
-def butt5(event):
-    selectCard(5)     
-def butt6(event):
-    selectCard(6)   
-def butt7(event):
-    selectCard(7)    
-def butt8(event):
-    selectCard(8)    
-def butt9(event):
-    selectCard(9)    
-def butt10(event):
-    selectCard(10)    
-def butt11(event):
-    selectCard(11)
-"""
+        i+=1
+    if i < 12:
+        for j in range(i,12):
+            displayedCardButtons[j].config(
+                image=emptyCard)
+            displayedCardButtons[j].unbind("<Button-1>")
   
 def bindButton(index):
     switcher = {
@@ -85,19 +63,11 @@ def bindButton(index):
     displayedCardButtons[index].bind(
         "<Button-1>",
         switcher[index]
-        )
+        )   
     
-    
-def make_bind_function(index):
-    def bindFunc(event):
-        return selectCard(event,index)
-    return bindFunc
-                 
-
 def selectCard(event,index):
-    """
-    TODO - make sure card isn't selected already
-    """ 
+    if len(selectedCards)==3:
+        clearSelection()
     if index in selectedCards:
         displayedCardButtons[index].config(bg="white")
         selectedCards.remove(index)
@@ -107,9 +77,7 @@ def selectCard(event,index):
     if len(selectedCards) < 3:
         return
     elif len(selectedCards) == 3:
-        #time.sleep(0.5)
         checkSelection()
-        clearSelection()
     else:
         clearSelection()
         return
@@ -126,19 +94,40 @@ def checkSelection():
         setFalse()
     
 def setTrue():
-    #for index in selectedCards:
-       # displayedCardButtons[index].config(bg="white")
-    return
+    noticeLabel.config(fg="purple",text="SET!")
+    for index in selectedCards:
+        displayedCardButtons[index].config(image=emptyCard,bg="white")
+    time.sleep(0.3)
+    if not ourGame.deck.emptyDeck():
+        ourGame.replaceSet(selectedCards)
+        displayHand()
+    else:
+        ourGame.removeSet(selectedCards)
+        checkGameOver()
+        #displayReducedHand()
+
+def checkGameOver():
+    if ourGame.checkBoard():
+        displayHand()
+    else:
+        noticeLabel.config(fg="purple", text="Game Over!")
+        gameButt.config(text="Start Game")
+        for button in displayedCardButtons:
+            button.config(image=emptyCard)
+            button.unbind("<Button-1>") #may have issues here
+            #button.bind("<Button-1>", lambda: ) #possible solution?
 
 def setFalse():
+    noticeLabel.config(fg="red", text="Not a SET")
     #for index in selectedCards:
     #    displayedCardButtons[index].config(bg="white")
     return
 
 def clearSelection():
-    for index in selectedCards:
-        displayedCardButtons[index].config(bg="white")
-    del selectedCards[:]
+    for i in range(3):
+        displayedCardButtons[selectedCards[i]].config(bg="white")
+    del selectedCards[:3]
+    noticeLabel.config(text="")
 
 def quitandclose():
     root.destroy()
@@ -155,8 +144,14 @@ emptyCard = tk.PhotoImage(file='cards/card.png')
 content = ttk.Frame(root)
 content.grid(row=0, column=0, sticky=('N', 'S', 'E', 'W'))
 
-hand = ttk.Frame(content, borderwidth=5, relief='sunken',padding=3)
-hand.grid(row=0, column=0, rowspan=3)
+gameBoard = ttk.Frame(content)
+gameBoard.grid(row=0, column=0, rowspan=3)
+
+noticeLabel = tk.Label(gameBoard, width=15,relief="ridge")
+noticeLabel.grid(row=0, column=0,pady=10)
+
+hand = ttk.Frame(gameBoard, borderwidth=5, relief='sunken',padding=3)
+hand.grid(row=1, column=0)
 
 r = 0
 c = 0
